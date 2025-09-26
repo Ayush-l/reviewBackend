@@ -3,6 +3,7 @@ package com.example.review.Classes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,9 +22,12 @@ import static java.lang.Math.round;
 public class Cafe {
 
     @Id
-    private String id;
+    private Long id;
 
     private int dishesCount;
+
+    @DBRef
+    private User user;
 
     @DBRef
     private List<Dish> dishes;
@@ -36,8 +40,9 @@ public class Cafe {
     @DBRef
     private List<List<Review>> reviews;
 
-    public void addDish(String name,String url){
-        dishes.add(new Dish(name,url));
+    public void addDish(Dish dish){
+        if(isPresent(dish.getName())) return;
+        dishes.add(dish);
         rating.add(0D);
         ratingCount.add(0);
         dishesCount++;
@@ -51,6 +56,7 @@ public class Cafe {
     }
 
     public void addReview(Review review){
+        if(!isPresent(review.getDish().getName())) return;
         for(int i=0;i<dishesCount;i++){
             if(review.getDish().getName().equals(dishes.get(i).getName())){
                 List<Review> r=reviews.get(i);
