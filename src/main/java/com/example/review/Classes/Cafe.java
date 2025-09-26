@@ -1,0 +1,75 @@
+package com.example.review.Classes;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static java.lang.Math.round;
+
+
+@AllArgsConstructor
+@Document
+@Data
+@NoArgsConstructor
+@Component
+public class Cafe {
+
+    @Id
+    private String id;
+
+    private int dishesCount;
+
+    @DBRef
+    private List<Dish> dishes;
+
+    private List<Double> rating;
+    private List<Integer> ratingCount;
+
+    private int cafeRating;
+
+    @DBRef
+    private List<List<Review>> reviews;
+
+    public void addDish(String name,String url){
+        dishes.add(new Dish(name,url));
+        rating.add(0D);
+        ratingCount.add(0);
+        dishesCount++;
+    }
+
+    public boolean isPresent(String name){
+        for(int i=0;i<dishesCount;i++){
+            if(dishes.get(i).getName().equals(name)) return true;
+        }
+        return false;
+    }
+
+    public void addReview(Review review){
+        for(int i=0;i<dishesCount;i++){
+            if(review.getDish().getName().equals(dishes.get(i).getName())){
+                List<Review> r=reviews.get(i);
+                r.add(review);
+                reviews.set(i,r);
+                rating.set(i,(rating.get(i)*ratingCount.get(i)+review.getRating())/(ratingCount.get(i)+1));
+                ratingCount.set(i,ratingCount.get(i)+1);
+                break;
+            }
+        }
+
+        int c=0;
+        double r=0;
+        for(int i=0;i<dishesCount;i++){
+            if(rating.get(i)>1){
+                r+=rating.get(i);
+                c++;
+            }
+        }
+        cafeRating=(int)round(c/r);
+    }
+}
