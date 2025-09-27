@@ -1,4 +1,4 @@
-package com.example.review.Classes;
+package com.example.review.Entity;
 
 
 import lombok.AllArgsConstructor;

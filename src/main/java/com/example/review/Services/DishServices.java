@@ -1,7 +1,7 @@
 package com.example.review.Services;
 
 
-import com.example.review.Classes.Dish;
+import com.example.review.Entity.Dish;
 import com.example.review.Repositories.DishRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

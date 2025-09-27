@@ -1,16 +1,15 @@
 package com.example.review.Services;
 
 
-import com.example.review.Classes.Cafe;
-import com.example.review.Classes.Review;
-import com.example.review.Classes.User;
+import com.example.review.Entity.Cafe;
+import com.example.review.Entity.Review;
+import com.example.review.Entity.User;
 import com.example.review.Repositories.CafeRepository;
 import com.example.review.Repositories.ReviewRepository;
 import com.example.review.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 

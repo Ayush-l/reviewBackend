@@ -1,10 +1,10 @@
 package com.example.review.Services;
 
 
-import com.example.review.Classes.Cafe;
-import com.example.review.Classes.Dish;
-import com.example.review.Classes.Review;
-import com.example.review.Classes.User;
+import com.example.review.Entity.Cafe;
+import com.example.review.Entity.Dish;
+import com.example.review.Entity.Review;
+import com.example.review.Entity.User;
 import com.example.review.Repositories.CafeRepository;
 import com.example.review.Repositories.DishRepository;
 import com.example.review.Repositories.ReviewRepository;
@@ -68,19 +68,6 @@ public class CafeService {
             }
         }
         return p;
-    }
-
-    public boolean createCafe(String id){
-        if(getCafe(id)==null){
-            Cafe cafe=new Cafe();
-            cafe.setId(id);
-            cafe.setDishesCount(0);
-            cafe.setCafeRating(0);
-            cafe.setCafeRating(0);
-            cafeRepository.save(cafe);
-            return true;
-        }
-        return false;
     }
 
     public boolean addReview(String id, Review review){

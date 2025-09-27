@@ -1,9 +1,9 @@
 package com.example.review.Services;
 
 
-import com.example.review.Classes.Cafe;
-import com.example.review.Classes.Review;
-import com.example.review.Classes.User;
+import com.example.review.Entity.Cafe;
+import com.example.review.Entity.Review;
+import com.example.review.Entity.User;
 import com.example.review.Repositories.CafeRepository;
 import com.example.review.Repositories.ReviewRepository;
 import com.example.review.Repositories.UserRepository;
