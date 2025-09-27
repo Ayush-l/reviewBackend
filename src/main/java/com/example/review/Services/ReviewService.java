@@ -17,13 +17,11 @@ import java.util.Optional;
 @Service
 public class ReviewService {
 
-    @Autowired
     private final ReviewRepository reviewRepository;
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final CafeRepository cafeRepository;
 
+    @Autowired
     public ReviewService(ReviewRepository reviewRepository, UserRepository userRepository, CafeRepository cafeRepository){
         this.reviewRepository=reviewRepository;
         this.userRepository=userRepository;

@@ -11,9 +11,9 @@ import java.util.Optional;
 
 @Service
 public class DishServices{
-    @Autowired
-    private final DishRepository dishRepository;
 
+    private final DishRepository dishRepository;
+    @Autowired
     public DishServices(DishRepository dishRepository){
         this.dishRepository=dishRepository;
     }

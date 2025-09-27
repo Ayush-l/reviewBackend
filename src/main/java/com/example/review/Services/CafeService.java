@@ -20,19 +20,15 @@ import java.util.Optional;
 @Service
 public class CafeService {
 
-    @Autowired
     private final CafeRepository cafeRepository;
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final DishRepository dishRepository;
-    @Autowired
     private final ReviewRepository reviewRepository;
-    @Autowired
     private final ReviewService reviewService;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
     public CafeService(CafeRepository cafeRepository, UserRepository userRepository, DishRepository dishRepository, ReviewRepository reviewRepository,ReviewService reviewService){
         passwordEncoder=new BCryptPasswordEncoder();
         this.cafeRepository=cafeRepository;

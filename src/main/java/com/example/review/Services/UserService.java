@@ -16,19 +16,15 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final CafeRepository cafeRepository;
-    @Autowired
     private final ReviewRepository reviewRepository;
-    @Autowired
     private final CafeService cafeService;
-    @Autowired
     private final ReviewService reviewService;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
     public UserService(UserRepository userRepository, CafeRepository cafeRepository,ReviewRepository reviewRepository,CafeService cafeService,ReviewService reviewService){
         this.userRepository=userRepository;
         this.cafeRepository=cafeRepository;
