@@ -7,16 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class DishServices{
     @Autowired
-    private DishRepository dishRepository;
+    private final DishRepository dishRepository;
+
+    public DishServices(DishRepository dishRepository){
+        this.dishRepository=dishRepository;
+    }
 
     public boolean createDish(String name,String url){
         Dish d=getDish(name);
-        if(d.equals(null)){
+        if(d==null){
             d=new Dish();
             d.setName(name.toLowerCase());
             d.setUrl(url);
@@ -28,7 +32,7 @@ public class DishServices{
 
     public boolean changeDish(String name,String url){
         Dish d=getDish(name);
-        if(!d.equals(null)){
+        if(d!=null){
             d.setUrl(url);
             dishRepository.save(d);
             return true;
@@ -37,7 +41,8 @@ public class DishServices{
     }
 
     public Dish getDish(String name){
-        return dishRepository.findById(name.toLowerCase()).get();
+        Optional<Dish> optDish=dishRepository.findById(name.toLowerCase());
+        return optDish.orElse(null);
     }
 
     public List<Dish> getAllDishes(){

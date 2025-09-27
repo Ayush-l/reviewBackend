@@ -32,4 +32,8 @@ public class User {
 
     @DBRef
     private Cafe cafeAdded;
+
+    public void deleteReview(Review review){
+        reviews.remove(review);
+    }
 }

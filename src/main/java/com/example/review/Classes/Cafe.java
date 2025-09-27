@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.Math.round;
 
@@ -22,7 +23,9 @@ import static java.lang.Math.round;
 public class Cafe {
 
     @Id
-    private Long id;
+    private String id= UUID.randomUUID().toString();;
+
+    private String name;
 
     private int dishesCount;
 
@@ -55,6 +58,17 @@ public class Cafe {
         return false;
     }
 
+    public void setRatings(){
+        int c=0;
+        double r=0;
+        for(int i=0;i<dishesCount;i++){
+            if(rating.get(i)>1){
+                r+=rating.get(i);
+                c++;
+            }
+        }
+        cafeRating=(int)round(c/r);
+    }
     public void addReview(Review review){
         if(!isPresent(review.getDish().getName())) return;
         for(int i=0;i<dishesCount;i++){
@@ -68,14 +82,19 @@ public class Cafe {
             }
         }
 
-        int c=0;
-        double r=0;
+    }
+
+    public void deleteReview(Review review){
         for(int i=0;i<dishesCount;i++){
-            if(rating.get(i)>1){
-                r+=rating.get(i);
-                c++;
+            if(dishes.get(i).getName().equals(review.getDish().getName())){
+                List<Review> r=reviews.get(i);
+                r.remove(review);
+                reviews.set(i,r);
+                if(ratingCount.get(i)>1) rating.set(i,(rating.get(i)*ratingCount.get(i)-review.getRating())/(ratingCount.get(i)-1));
+                else rating.set(i,0D);
+                ratingCount.set(i,ratingCount.get(i)-1);
+                break;
             }
         }
-        cafeRating=(int)round(c/r);
     }
 }

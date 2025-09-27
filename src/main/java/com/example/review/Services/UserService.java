@@ -1,15 +1,13 @@
 package com.example.review.Services;
 
 
+import com.example.review.Classes.Cafe;
 import com.example.review.Classes.Review;
 import com.example.review.Classes.User;
 import com.example.review.Repositories.CafeRepository;
 import com.example.review.Repositories.ReviewRepository;
 import com.example.review.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -20,18 +18,29 @@ import java.util.Optional;
 @Service
 public class UserService {
     @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     @Autowired
-    private CafeRepository cafeRepository;
+    private final CafeRepository cafeRepository;
     @Autowired
-    private CafeService cafeService;
+    private final ReviewRepository reviewRepository;
     @Autowired
-    private ReviewRepository reviewRepository;
+    private final CafeService cafeService;
+    @Autowired
+    private final ReviewService reviewService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, CafeRepository cafeRepository,ReviewRepository reviewRepository,CafeService cafeService,ReviewService reviewService){
+        this.userRepository=userRepository;
+        this.cafeRepository=cafeRepository;
+        this.reviewRepository=reviewRepository;
+        passwordEncoder=new BCryptPasswordEncoder();
+        this.cafeService=cafeService;
+        this.reviewService=reviewService;
+    }
 
     public boolean createUser(String email, String password, String firstName, String lastName,String role){
-        if(getUser(email).equals(null)){
+        if(getUser(email)==null){
             User user=new User();
             user.setEmail(email);
             user.setRole(role.toLowerCase());
@@ -47,7 +56,7 @@ public class UserService {
 
     public boolean changeUser(String email, String password, String firstName, String lastName){
         User user=getUser(email);
-        if(!user.equals(null)){
+        if(user!=null){
             user.setPassword(passwordEncoder.encode(password));
             user.setFirstName(firstName);
             user.setLastName(lastName);
@@ -59,9 +68,9 @@ public class UserService {
 
     public boolean deleteUser(String email,String passWord){
         User user=getUser(email);
-        if(!user.equals(null)&&passwordEncoder.matches(user.getPassword(),passWord)){
-            if(!user.getCafeAdded().equals(null)) cafeRepository.deleteById(user.getCafeAdded().getId());
-            for(Review review:user.getReviews()) reviewRepository.deleteById(review.getId());
+        if(user!=null&&passwordEncoder.matches(user.getPassword(),passWord)){
+            for(Review review:user.getReviews()) reviewService.deleteReview(review.getId());
+            if(user.getCafeAdded()!=null) cafeService.deleteCafe(email,passWord);
             userRepository.deleteById(email);
             return true;
         }
@@ -70,13 +79,17 @@ public class UserService {
 
 
     public User getUser(String email){
-        return userRepository.findById(email).get();
+        Optional<User> optUser=userRepository.findById(email);
+        return optUser.orElse(null);
     }
 
-    public boolean addCafe(Long id,String email){
+    public boolean addCafe(String email,String name){
         User user=getUser(email);
-        if(!user.equals(null)&&user.getCafeAdded().equals(null)){
-            user.setCafeAdded(cafeRepository.findById(id).get());
+        if(user!=null&&user.getCafeAdded()==null){
+            Cafe cafe=new Cafe();
+            cafe.setName(name);
+            cafeRepository.save(cafe);
+            user.setCafeAdded(cafe);
             userRepository.save(user);
             return true;
         }
