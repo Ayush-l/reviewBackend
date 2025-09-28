@@ -1,15 +1,11 @@
 package com.example.review.Services;
 
 
-import com.example.review.Entity.Cafe;
-import com.example.review.Entity.Dish;
-import com.example.review.Entity.Review;
-import com.example.review.Entity.User;
-import com.example.review.Repositories.CafeRepository;
-import com.example.review.Repositories.DishRepository;
-import com.example.review.Repositories.ReviewRepository;
-import com.example.review.Repositories.UserRepository;
+import com.example.review.Entity.*;
+import com.example.review.Repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +21,19 @@ public class CafeService {
     private final DishRepository dishRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
+    private final CafeToRetRepository cafeToretRepository;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public CafeService(CafeRepository cafeRepository, UserRepository userRepository, DishRepository dishRepository, ReviewRepository reviewRepository,ReviewService reviewService){
+    public CafeService(CafeRepository cafeRepository, UserRepository userRepository, DishRepository dishRepository, ReviewRepository reviewRepository,ReviewService reviewService,CafeToRetRepository cafeToretRepository){
         passwordEncoder=new BCryptPasswordEncoder();
         this.cafeRepository=cafeRepository;
         this.userRepository=userRepository;
         this.dishRepository=dishRepository;
         this.reviewRepository=reviewRepository;
         this.reviewService=reviewService;
+        this.cafeToretRepository=cafeToretRepository;
     }
 
     public Cafe getCafe(String id){
@@ -74,7 +72,7 @@ public class CafeService {
         return true;
     }
 
-    public boolean addDish(String name,String url,String id){
+    public boolean addDish(String name,String id){
         Cafe cafe=getCafe(id);
         if(cafe==null) return false;
         Optional<Dish> optDish=dishRepository.findById(name);
@@ -101,5 +99,13 @@ public class CafeService {
             userRepository.save(user);
         }
         return false;
+    }
+
+    public Page<CafeToret> getAllCafe(Pageable pageable){
+        return cafeToretRepository.findAll(pageable);
+    }
+
+    public long getTotalPages(){
+        return cafeRepository.count();
     }
 }

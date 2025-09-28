@@ -63,4 +63,10 @@ public class ReviewService {
         }
         return true;
     }
+
+
+    public boolean changeReview(Review review){
+        reviewRepository.save(review);
+        return true;
+    }
 }

@@ -37,7 +37,7 @@ public class SecurityConfig {
 
                                 .requestMatchers("/create").permitAll()
 
-                                .requestMatchers("/auth/admin").hasAuthority("Admin")
+                                .requestMatchers("/auth/admin","/auth/dish").hasAuthority("Admin")
                                 .requestMatchers("/auth/cafe").hasAuthority("Owner")
 
                                 .anyRequest().authenticated()
