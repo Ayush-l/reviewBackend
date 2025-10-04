@@ -1,16 +1,10 @@
 package com.example.review.Entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Document
 @Component
 public class Dish{
@@ -20,4 +14,20 @@ public class Dish{
 
     private String url;
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }

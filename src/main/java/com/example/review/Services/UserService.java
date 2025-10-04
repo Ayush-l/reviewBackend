@@ -92,8 +92,7 @@ public class UserService {
             userRepository.save(user);
             user=userRepository.findById(email).get();
             CafeToret cafeToret=new CafeToret();
-            cafeToret.setId(user.getCafeAdded().getId());
-            cafeToret.setName(user.getCafeAdded().getName());
+            cafeToret.setName(user.getCafeAdded().getId());
             cafeToRetRepository.save(cafeToret);
             return true;
         }

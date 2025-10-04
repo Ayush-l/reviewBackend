@@ -1,8 +1,5 @@
 package com.example.review.Entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,10 +11,7 @@ import java.util.UUID;
 import static java.lang.Math.round;
 
 
-@AllArgsConstructor
 @Document
-@Data
-@NoArgsConstructor
 @Component
 public class Cafe {
 
@@ -28,6 +22,78 @@ public class Cafe {
 
     private int dishesCount;
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setReviews(List<List<Review>> reviews) {
+        this.reviews = reviews;
+    }
+
+    public void setCafeRating(double cafeRating) {
+        this.cafeRating = cafeRating;
+    }
+
+    public void setRatingCount(List<Integer> ratingCount) {
+        this.ratingCount = ratingCount;
+    }
+
+    public void setRating(List<Double> rating) {
+        this.rating = rating;
+    }
+
+    public void setDishes(List<Dish> dishes) {
+        this.dishes = dishes;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setDishesCount(int dishesCount) {
+        this.dishesCount = dishesCount;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getDishesCount() {
+        return dishesCount;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public List<Double> getRating() {
+        return rating;
+    }
+
+    public List<Dish> getDishes() {
+        return dishes;
+    }
+
+    public List<Integer> getRatingCount() {
+        return ratingCount;
+    }
+
+    public double getCafeRating() {
+        return cafeRating;
+    }
+
+    public List<List<Review>> getReviews() {
+        return reviews;
+    }
+
     @DBRef
     private User user;
 
@@ -37,7 +103,7 @@ public class Cafe {
     private List<Double> rating;
     private List<Integer> ratingCount;
 
-    private int cafeRating;
+    private double cafeRating;
 
     @DBRef
     private List<List<Review>> reviews;

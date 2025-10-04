@@ -9,6 +9,7 @@ import com.example.review.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +43,7 @@ public class CafeController{
 
     @GetMapping("/getall/{page}")
     public ResponseEntity<Page<CafeToret>> getCafe(@PathVariable int p){
-        Page<CafeToret> page=cafeService.getAllCafe(PageRequest.of(p,30));
+        Page<CafeToret> page=cafeService.getAllCafe(PageRequest.of(p,30, Sort.by("rating").descending()));
         if(!page.isEmpty()) return new ResponseEntity<>(page, HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(null,HttpStatus.OK);
     }

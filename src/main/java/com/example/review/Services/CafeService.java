@@ -6,6 +6,7 @@ import com.example.review.Repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,13 +65,6 @@ public class CafeService {
         return p;
     }
 
-    public boolean addReview(String id, Review review){
-        Cafe cafe=getCafe(id);
-        if(cafe==null) return false;
-        cafe.addReview(review);
-        cafeRepository.save(cafe);
-        return true;
-    }
 
     public boolean addDish(String name,String id){
         Cafe cafe=getCafe(id);
@@ -79,13 +73,14 @@ public class CafeService {
         if(optDish.isPresent()){
             cafe.addDish(optDish.get());
             cafeRepository.save(cafe);
+
         }
         return true;
     }
 
-    public boolean deleteCafe(String email,String passWord){
+    public void deleteCafe(String email,String passWord){
         Optional<User> optUser=userRepository.findById(email);
-        if(optUser.isEmpty()) return false;
+        if(optUser.isEmpty()) return;
         User user=optUser.get();
         if(passwordEncoder.matches(user.getPassword(),passWord)){
             java.util.Optional<Cafe> optCafe=cafeRepository.findById(user.getCafeAdded().getId());
@@ -94,11 +89,12 @@ public class CafeService {
                 for(List<Review> r:cafe.getReviews()){
                     for(Review r1:r) reviewService.deleteReview(r1.getId());
                 }
+                cafeRepository.deleteById(cafe.getId());
+                cafeToretRepository.deleteById(cafe.getId());
             }
             user.setCafeAdded(null);
             userRepository.save(user);
         }
-        return false;
     }
 
     public Page<CafeToret> getAllCafe(Pageable pageable){
@@ -106,6 +102,6 @@ public class CafeService {
     }
 
     public long getTotalPages(){
-        return cafeRepository.count();
+        return (cafeRepository.count()+29)/30;
     }
 }
