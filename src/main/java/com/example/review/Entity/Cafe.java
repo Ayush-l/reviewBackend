@@ -16,11 +16,22 @@ import static java.lang.Math.round;
 public class Cafe {
 
     @Id
-    private String id= UUID.randomUUID().toString();;
+    private String id= UUID.randomUUID().toString();
 
     private String name;
 
     private int dishesCount;
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
+    @DBRef
+    List<Image> images;
 
     public void setId(String id) {
         this.id = id;

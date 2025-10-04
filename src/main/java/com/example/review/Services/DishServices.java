@@ -2,6 +2,7 @@ package com.example.review.Services;
 
 
 import com.example.review.Entity.Dish;
+import com.example.review.Entity.Image;
 import com.example.review.Repositories.DishRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,22 +19,22 @@ public class DishServices{
         this.dishRepository=dishRepository;
     }
 
-    public boolean createDish(String name,String url){
+    public boolean createDish(String name,Image image){
         Dish d=getDish(name);
         if(d==null){
             d=new Dish();
             d.setName(name.toLowerCase());
-            d.setUrl(url);
+            d.setImage(image);
             dishRepository.save(d);
             return true;
         }
         return false;
     }
 
-    public boolean changeDish(String name,String url){
+    public boolean changeDish(String name, Image image){
         Dish d=getDish(name);
         if(d!=null){
-            d.setUrl(url);
+            d.setImage(image);
             dishRepository.save(d);
             return true;
         }

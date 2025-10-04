@@ -9,6 +9,7 @@ import com.example.review.Repositories.ReviewRepository;
 import com.example.review.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,8 @@ public class ReviewService {
         this.cafeRepository=cafeRepository;
     }
 
+
+    @Transactional
     public boolean addReview(String email,Review review,String dish,String id){
         Optional<User> optUser=userRepository.findById(email);
         if(optUser.isEmpty()) return false;
@@ -49,6 +52,7 @@ public class ReviewService {
         return true;
     }
 
+    @Transactional
     public boolean deleteReview(String id){
         Optional<Review> optReview=reviewRepository.findById(id);
         if(optReview.isPresent()){

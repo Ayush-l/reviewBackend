@@ -26,8 +26,19 @@ public class User {
     @DBRef
     private Cafe cafeAdded;
 
+    @DBRef
+    private Image image;
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     public void deleteReview(Review review){
         reviews.remove(review);
+    }
+
+    public Image getImage() {
+        return image;
     }
 
     public void setEmail(String email) {

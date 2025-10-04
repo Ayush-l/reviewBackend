@@ -20,14 +20,14 @@ public class DishController {
 
     @PostMapping("/create")
     public ResponseEntity<Boolean> createDish(@RequestBody Dish dish){
-        if(dishServices.createDish(dish.getName(),dish.getUrl())) return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
+        if(dishServices.createDish(dish.getName(),dish.getImage())) return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
         return new ResponseEntity<>(false,HttpStatus.BAD_REQUEST);
     }
 
 
     @PutMapping("/change")
     public ResponseEntity<Boolean> changeDish(@RequestBody Dish dish){
-        if(dishServices.changeDish(dish.getName(),dish.getUrl())) return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
+        if(dishServices.changeDish(dish.getName(),dish.getImage())) return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
         return new ResponseEntity<>(false,HttpStatus.BAD_REQUEST);
     }
 }

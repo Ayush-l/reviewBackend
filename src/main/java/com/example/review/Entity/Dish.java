@@ -1,6 +1,7 @@
 package com.example.review.Entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +13,16 @@ public class Dish{
     @Id
     private String name;
 
-    private String url;
+
+    @DBRef
+    private Image image;
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setImage(Image image) {
+        this.image = image;
     }
 
 
@@ -27,7 +30,7 @@ public class Dish{
         return name;
     }
 
-    public String getUrl() {
-        return url;
+    public Image getImage() {
+        return image;
     }
 }
