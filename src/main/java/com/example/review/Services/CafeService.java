@@ -87,7 +87,10 @@ public class CafeService {
             if(cafe.getImages().size()==MAXQUANTITYOFIMAGES) return false;
             String id=imageService.addFile(file);
             cafe.getImages().add(imageService.loadFile(id));
+            CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
+            cafeToret.setImages(cafe.getImages());
             cafeRepository.save(cafe);
+            cafeToretRepository.save(cafeToret);
             return true;
 
         } catch (Exception e) {
@@ -99,7 +102,10 @@ public class CafeService {
     public boolean deleteImage(String id,String cafeId){
         try{
             Cafe cafe=getCafe(cafeId);
+            CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
             cafe.getImages().removeIf(x->x.getId().equals(id));
+            cafeToret.setImages(cafe.getImages());
+            cafeToretRepository.save(cafeToret);
             cafeRepository.save(cafe);
             imageService.deleteImage(id);
             return true;
