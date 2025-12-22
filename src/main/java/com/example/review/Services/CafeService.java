@@ -44,14 +44,17 @@ public class CafeService {
     }
 
 
+    public Page<CafeToret> searchPrefix(String prefix,int p){
+        return cafeToretRepository.findByNameStartingWithIgnoreCase(prefix,PageRequest.of(p-1,30,Sort.by(Sort.Direction.DESC,"rating")));
+    }
+
     public Cafe getCafe(String id){
         Optional<Cafe> optCafe=cafeRepository.findById(id);
         return optCafe.orElse(null);
     }
 
     public Page<Review> getCafeReviews(String cafeId, String dish,int page){
-        Pageable p= PageRequest.of(page,30, Sort.by(Sort.Direction.DESC,"creationTime"));
-        return reviewRepository.findByCafeAndDish(cafeId,dish,p);
+        return reviewRepository.findByCafeAndDish(cafeId,dish,PageRequest.of(page,30, Sort.by(Sort.Direction.DESC,"creationTime")));
     }
 
 

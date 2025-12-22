@@ -3,6 +3,7 @@ package com.example.review.Services;
 import com.example.review.Entity.Cafe;
 import com.example.review.Entity.CafeToret;
 import com.example.review.Entity.Review;
+import com.example.review.Entity.User;
 import com.example.review.Repositories.CafeRepository;
 import com.example.review.Repositories.CafeToRetRepository;
 import com.example.review.Repositories.ReviewRepository;
@@ -26,6 +27,10 @@ public class ReviewService {
         this.userService=userService;
         this.cafeService=cafeService;
         this.cafeRepository=cafeRepository;
+    }
+
+    public boolean verifyUser(String id,String cafeId,String dishName){
+        return !reviewRepository.existsByUserAndCafeAndDish(userService.getUser(id),cafeId,dishName);
     }
 
     @Transactional

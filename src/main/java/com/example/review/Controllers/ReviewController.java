@@ -28,6 +28,18 @@ public class ReviewController {
         this.jwtService=jwtService;
     }
 
+    @PostMapping("/verifyUser")
+    public ResponseEntity<Void> verifyUser(@RequestBody Body body){
+        try{
+            if(jwtAuthFilter.doFilterInternal(body.getAuthToken(), "user")){
+                if(reviewService.verifyUser(jwtService.extractUsername(body.getAuthToken().substring(7)),body.getCafe().getId(),body.getDish().getName())) return new ResponseEntity<>(HttpStatus.OK);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+    }
 
     @PostMapping("/addReview")
     public ResponseEntity<Boolean> addReview(@RequestBody Body body){

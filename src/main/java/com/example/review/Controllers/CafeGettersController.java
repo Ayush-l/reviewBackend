@@ -4,6 +4,7 @@ import com.example.review.Entity.Cafe;
 import com.example.review.Entity.CafeToret;
 import com.example.review.Entity.Review;
 import com.example.review.Services.CafeService;
+import com.google.api.Http;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +41,10 @@ public class CafeGettersController {
         return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/search/{prefix}/{page}")
+    public ResponseEntity<Page<CafeToret>> search(@PathVariable String prefix,@PathVariable int page){
+        return new ResponseEntity<>(cafeService.searchPrefix(prefix,page), HttpStatus.OK);
+    }
 
     @GetMapping("/reviews/{dishName}/{id}/{page}")
     public ResponseEntity<Page<Review>> getReviews(@PathVariable int page, @PathVariable String id, @PathVariable String dishName){

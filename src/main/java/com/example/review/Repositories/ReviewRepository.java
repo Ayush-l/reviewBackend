@@ -13,9 +13,9 @@ public interface ReviewRepository extends MongoRepository<Review, ObjectId> {
             String dish,
             Pageable pageable
     );
-    boolean existsByUserAndCafeIdAndDish(
+    boolean existsByUserAndCafeAndDish(
             User user,
-            String cafeId,
+            String cafe,
             String dish
     );
 }
