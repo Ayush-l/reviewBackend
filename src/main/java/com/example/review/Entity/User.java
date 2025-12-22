@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document
@@ -20,6 +21,7 @@ public class User {
 
     private String role;
 
+
     @DBRef
     private List<Review> reviews;
 
@@ -29,6 +31,16 @@ public class User {
     @DBRef
     private Image image;
 
+    public User() {
+        email="";
+        password="";
+        firstName="";
+        lastName="";
+        role="";
+        reviews=new ArrayList<>();
+        cafeAdded=null;
+        image=null;
+    }
     public void setImage(Image image) {
         this.image = image;
     }

@@ -1,38 +1,45 @@
 package com.example.review.Controllers;
 
 
+import com.example.review.Entity.Body;
 import com.example.review.Entity.Review;
+import com.example.review.FIlter.JwtAuthFilter;
+import com.example.review.Services.JWTService;
 import com.example.review.Services.ReviewService;
+import com.google.api.Http;
+import com.google.api.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @RequestMapping("/review")
-public class ReviewController{
+@RestController
+public class ReviewController {
+
     private final ReviewService reviewService;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final JWTService jwtService;
+
     @Autowired
-    public ReviewController(ReviewService reviewService){
+    public ReviewController(ReviewService reviewService,JwtAuthFilter jwtAuthFilter,JWTService jwtService){
         this.reviewService=reviewService;
+        this.jwtAuthFilter=jwtAuthFilter;
+        this.jwtService=jwtService;
     }
 
-    @PostMapping("/create/{cafeId}/{dish}")
-    public ResponseEntity<Boolean> createReview(@PathVariable String cafeId,@PathVariable String dish,@RequestBody Review review){
-        if(reviewService.addReview(SecurityContextHolder.getContext().getAuthentication().getName(),review,dish,cafeId)) return new ResponseEntity<>(true, HttpStatus.CREATED);
-        return new ResponseEntity<>(false,HttpStatus.ALREADY_REPORTED);
-    }
 
-    @PutMapping("/change")
-    public ResponseEntity<Boolean> changeReview(@RequestBody Review newReview){
-        if(reviewService.changeReview(newReview)) return new ResponseEntity<>(true,HttpStatus.ACCEPTED);
-        return new ResponseEntity<>(false,HttpStatus.NOT_MODIFIED);
-    }
-
-    @DeleteMapping("/delete/{email}")
-    public ResponseEntity<Boolean> deleteReview(@PathVariable String id){
-        if(reviewService.deleteReview(id)) return new ResponseEntity<Boolean>(true,HttpStatus.ACCEPTED);
-        return new ResponseEntity<>(false,HttpStatus.BAD_GATEWAY);
+    @PostMapping("/addReview")
+    public ResponseEntity<Boolean> addReview(@RequestBody Body body){
+        try{
+            if(jwtAuthFilter.doFilterInternal(body.getAuthToken(), "user")){
+                reviewService.addReview(jwtService.extractUsername(body.getAuthToken().substring(7)),body.getCafe().getId(),body.getDish().getName(),body.getReview().getReview(),body.getReview().getRating());
+                return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            }
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

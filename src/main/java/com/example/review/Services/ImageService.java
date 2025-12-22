@@ -1,49 +1,85 @@
 package com.example.review.Services;
 
 
+import com.example.review.Entity.Cafe;
 import com.example.review.Entity.Image;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.client.gridfs.model.GridFSFile;
+import com.example.review.Entity.User;
+import com.example.review.Repositories.CafeRepository;
+import com.example.review.Repositories.ImageRepository;
+import com.example.review.Repositories.UserRepository;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.gridfs.GridFsOperations;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ImageService {
 
+
+    private static final Log log = LogFactory.getLog(ImageService.class);
     @Autowired
-    private GridFsTemplate template;
+    private ImageRepository imageRepository;
 
     @Autowired
-    private GridFsOperations operations;
+    private UserRepository userRepository;
 
-    public void deleteImage(String id){
-        template.delete(new Query(Criteria.where("_id").is(id)));
+    @Autowired
+    private CafeRepository cafeRepository;
+
+    public boolean deleteImage(String id){
+        imageRepository.deleteById(id);
+        return true;
     }
 
+    @Transactional
+    public String addDP(MultipartFile file,String id){
+        try {
+            Image image = new Image();
+            image.setFileType(file.getContentType());
+            image.setFile(IOUtils.toByteArray(file.getInputStream()));
+            User user = userRepository.findById(id).get();
+            deleteImage(user.getImage().getId());
+            image.setUser(user);
+            String s=imageRepository.save(image).getId();
+            user.setImage(imageRepository.findById(s).get());
+            userRepository.save(user);
+            return s;
+        } catch (Exception e) {
+            log.info(e);
+            return "Not Created";
+        }
+    }
+
+    @Transactional
+    public boolean addCafeImage(List<String> url, String id){
+        try {
+            Cafe cafe=cafeRepository.findById(id).get();
+            cafe.setImages(url);
+            cafeRepository.save(cafe);
+            return true;
+        } catch (Exception e) {
+            log.info(e);
+            return false;
+        }
+    }
+
+
+
     public String addFile(MultipartFile toUpload) throws IOException {
-        DBObject metaData=new BasicDBObject();
-        Object fileId=template.store(toUpload.getInputStream(),toUpload.getOriginalFilename(),toUpload.getContentType(),metaData);
-        return fileId.toString();
+        Image image=new Image();
+        image.setFileType(toUpload.getContentType());
+        image.setFile(IOUtils.toByteArray(toUpload.getInputStream()));
+        return imageRepository.save(image).getId();
     }
 
     public Image loadFile(String id) throws IOException {
-        GridFSFile gridFSFile=template.findOne(new Query(Criteria.where("_id").is(id)));
-        Image image=new Image();
-        if(gridFSFile!=null && gridFSFile.getMetadata() != null){
-            image.setId(gridFSFile.getId().toString());
-            image.setFileType(gridFSFile.getMetadata().get("_contentType").toString());
-            image.setFile(IOUtils.toByteArray(operations.getResource(gridFSFile).getInputStream()));
-        }
-        return image;
+        return imageRepository.findById(id).orElse(null);
     }
 
 }

@@ -6,72 +6,81 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Document
 @Component
 public class Review{
 
     @Id
-    private String id= UUID.randomUUID().toString();;
+    private String id;
+    private int rating;
+    private String review;
+    private String cafe;
+    private String dish;
+    @DBRef
+    private User user;
 
-    public void setId(String id) {
-        this.id = id;
+    private LocalDateTime creationTime;
+
+    public LocalDateTime getCreationTime() {
+        return creationTime;
     }
 
-    public void setReview(String review) {
-        this.review = review;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
-    public void setDish(Dish dish) {
-        this.dish = dish;
-    }
-
-    public void setCafe(Cafe cafe) {
-        this.cafe = cafe;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getReview() {
-        return review;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Cafe getCafe() {
-        return cafe;
-    }
-
-    public Dish getDish() {
-        return dish;
-    }
-
-    public int getRating() {
-        return rating;
+    public void setCreationTime(LocalDateTime creationTime) {
+        this.creationTime = creationTime;
     }
 
     public String getId() {
         return id;
     }
 
-    private String review;
-    private int rating;
 
-    @DBRef
-    private Dish dish;
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    @DBRef
-    private Cafe cafe;
 
-    @DBRef
-    private User user;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+
+
+    public void setCafe(String cafe) {
+        this.cafe = cafe;
+    }
+
+    public void setDish(String dish) {
+        this.dish = dish;
+    }
+
+    public String getCafe() {
+        return cafe;
+    }
+
+    public String getDish() {
+        return dish;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+
+    public void setReview(String review) {
+        this.review = review;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public String getReview() {
+        return review;
+    }
+
 }

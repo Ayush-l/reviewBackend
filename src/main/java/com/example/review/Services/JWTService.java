@@ -6,17 +6,16 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
 public class JWTService {
-    private final String SECRET_KEY="IdkHowToNameItSoIAmRandomlyWritingAnything";
+    private final String SECRET_KEY="FIRSTprojectBYmyOWNfirstPROJECTbyMYownFIRSTprojectBYmyOWN";
 
     public String generateToken(String email){
         Map<String,Object> claims=new HashMap<>();
@@ -28,7 +27,7 @@ public class JWTService {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24*60))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24*60*365L))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

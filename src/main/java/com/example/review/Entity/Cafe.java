@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,55 +23,51 @@ public class Cafe {
 
     private int dishesCount;
 
-    public List<Image> getImages() {
-        return images;
+    private String address;
+
+    private List<String> images;
+
+    private List<DishRev> dishes;
+
+    private double cafeRating;
+
+    public void Cafe(){
+        cafeRating=0;
+        dishes=new ArrayList<>();
+        images=new ArrayList<>();
+        dishesCount=0;
     }
 
-    public void setImages(List<Image> images) {
-        this.images = images;
+    public String getId() {
+        return id;
     }
-
-    @DBRef
-    List<Image> images;
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setReviews(List<List<Review>> reviews) {
-        this.reviews = reviews;
-    }
-
-    public void setCafeRating(double cafeRating) {
-        this.cafeRating = cafeRating;
-    }
-
-    public void setRatingCount(List<Integer> ratingCount) {
-        this.ratingCount = ratingCount;
-    }
-
-    public void setRating(List<Double> rating) {
-        this.rating = rating;
-    }
-
-    public void setDishes(List<Dish> dishes) {
-        this.dishes = dishes;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setDishesCount(int dishesCount) {
-        this.dishesCount = dishesCount;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getId() {
-        return id;
+    public void setDishesCount(int dishesCount) {
+        this.dishesCount = dishesCount;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public void setDishes(List<DishRev> dishes) {
+        this.dishes = dishes;
+    }
+
+    public void setCafeRating(double cafeRating) {
+        this.cafeRating = cafeRating;
     }
 
     public String getName() {
@@ -81,49 +78,26 @@ public class Cafe {
         return dishesCount;
     }
 
-    public User getUser() {
-        return user;
+    public String getAddress() {
+        return address;
     }
 
-    public List<Double> getRating() {
-        return rating;
+    public List<String> getImages() {
+        return images;
     }
 
-    public List<Dish> getDishes() {
+    public List<DishRev> getDishes() {
         return dishes;
-    }
-
-    public List<Integer> getRatingCount() {
-        return ratingCount;
     }
 
     public double getCafeRating() {
         return cafeRating;
     }
 
-    public List<List<Review>> getReviews() {
-        return reviews;
-    }
 
-    @DBRef
-    private User user;
-
-    @DBRef
-    private List<Dish> dishes;
-
-    private List<Double> rating;
-    private List<Integer> ratingCount;
-
-    private double cafeRating;
-
-    @DBRef
-    private List<List<Review>> reviews;
-
-    public void addDish(Dish dish){
+    public void addDish(DishRev dish){
         if(isPresent(dish.getName())) return;
         dishes.add(dish);
-        rating.add(0D);
-        ratingCount.add(0);
         dishesCount++;
     }
 
@@ -134,43 +108,17 @@ public class Cafe {
         return false;
     }
 
-    public void setRatings(){
-        int c=0;
-        double r=0;
-        for(int i=0;i<dishesCount;i++){
-            if(rating.get(i)>1){
-                r+=rating.get(i);
-                c++;
-            }
-        }
-        cafeRating=(int)round(c/r);
-    }
-    public void addReview(Review review){
-        if(!isPresent(review.getDish().getName())) return;
-        for(int i=0;i<dishesCount;i++){
-            if(review.getDish().getName().equals(dishes.get(i).getName())){
-                List<Review> r=reviews.get(i);
-                r.add(review);
-                reviews.set(i,r);
-                rating.set(i,(rating.get(i)*ratingCount.get(i)+review.getRating())/(ratingCount.get(i)+1));
-                ratingCount.set(i,ratingCount.get(i)+1);
-                break;
-            }
-        }
 
-    }
 
-    public void deleteReview(Review review){
+    public void addReview(int x,String dishName){
+        double sum=0,count=0;
         for(int i=0;i<dishesCount;i++){
-            if(dishes.get(i).getName().equals(review.getDish().getName())){
-                List<Review> r=reviews.get(i);
-                r.remove(review);
-                reviews.set(i,r);
-                if(ratingCount.get(i)>1) rating.set(i,(rating.get(i)*ratingCount.get(i)-review.getRating())/(ratingCount.get(i)-1));
-                else rating.set(i,0D);
-                ratingCount.set(i,ratingCount.get(i)-1);
-                break;
+            if(dishes.get(i).getName().equals(dishName)) dishes.get(i).addRating(x);
+            if(dishes.get(i).getRating() != null){
+                sum+=dishes.get(i).getRating();
+                count++;
             }
         }
+        cafeRating=sum/count;
     }
 }

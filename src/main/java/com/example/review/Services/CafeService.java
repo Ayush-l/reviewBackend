@@ -3,70 +3,55 @@ package com.example.review.Services;
 
 import com.example.review.Entity.*;
 import com.example.review.Repositories.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CafeService {
 
-    private static final Logger log = LoggerFactory.getLogger(CafeService.class);
+    private static final Log log = LogFactory.getLog(CafeService.class);
     private final int MAXQUANTITYOFIMAGES;
 
     private final CafeRepository cafeRepository;
     private final UserRepository userRepository;
     private final DishRepository dishRepository;
-    private final ReviewRepository reviewRepository;
-    private final ReviewService reviewService;
     private final CafeToRetRepository cafeToretRepository;
     private final ImageService imageService;
+    private final ReviewRepository reviewRepository;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public CafeService(ImageService imageService,CafeRepository cafeRepository, UserRepository userRepository, DishRepository dishRepository, ReviewRepository reviewRepository,ReviewService reviewService,CafeToRetRepository cafeToretRepository){
+    public CafeService(ReviewRepository reviewRepository, ImageService imageService,CafeRepository cafeRepository, UserRepository userRepository, DishRepository dishRepository,CafeToRetRepository cafeToretRepository){
         passwordEncoder=new BCryptPasswordEncoder();
         this.cafeRepository=cafeRepository;
         this.imageService=imageService;
         this.userRepository=userRepository;
         this.dishRepository=dishRepository;
-        this.reviewRepository=reviewRepository;
-        this.reviewService=reviewService;
         this.cafeToretRepository=cafeToretRepository;
+        this.reviewRepository=reviewRepository;
         MAXQUANTITYOFIMAGES=10;
     }
+
 
     public Cafe getCafe(String id){
         Optional<Cafe> optCafe=cafeRepository.findById(id);
         return optCafe.orElse(null);
     }
 
-    public List<Review> getCafeReviews(String id, String name,int from){
-        Optional<Cafe> optCafe=cafeRepository.findById(id);
-        if(optCafe.isEmpty()) return null;
-        Cafe cafe=optCafe.get();
-        int dCount=cafe.getDishesCount();
-        List<Review> p=new ArrayList<>();
-        List<List<Review>> reviews=cafe.getReviews();
-        for(int i=0;i<dCount;i++){
-            if(cafe.getDishes().get(i).getName().equals(name)){
-                p=cafe.getReviews().get(i).subList(from,from+10);
-                break;
-            }
-        }
-        return p;
+    public Page<Review> getCafeReviews(String cafeId, String dish,int page){
+        Pageable p= PageRequest.of(page,30, Sort.by(Sort.Direction.DESC,"creationTime"));
+        return reviewRepository.findByCafeAndDish(cafeId,dish,p);
     }
 
 
@@ -75,22 +60,32 @@ public class CafeService {
         if(cafe==null) return false;
         Optional<Dish> optDish=dishRepository.findById(name);
         if(optDish.isPresent()){
-            cafe.addDish(optDish.get());
-            cafeRepository.save(cafe);
+            Dish dish=optDish.get();
+            DishRev dishRev=new DishRev();
+            dishRev.setUrl(dish.getUrl());
+            dishRev.setName(dish.getName());
+            cafe.addDish(dishRev);
+            try{
+                cafeRepository.save(cafe);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return false;
+            }
         }
         return true;
     }
 
-    public boolean addImage(String cafeId, MultipartFile file){
+    public boolean addImage(String cafeId, String url){
         try{
             Cafe cafe=getCafe(cafeId);
             if(cafe.getImages().size()==MAXQUANTITYOFIMAGES) return false;
-            String id=imageService.addFile(file);
-            cafe.getImages().add(imageService.loadFile(id));
-            CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
-            cafeToret.setImages(cafe.getImages());
+            cafe.getImages().add(url);
+            if(cafe.getImages().size()==1){
+                CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
+                cafeToret.setImage(cafe.getImages().get(0));
+                cafeToretRepository.save(cafeToret);
+            }
             cafeRepository.save(cafe);
-            cafeToretRepository.save(cafeToret);
             return true;
 
         } catch (Exception e) {
@@ -99,15 +94,16 @@ public class CafeService {
         return false;
     }
 
-    public boolean deleteImage(String id,String cafeId){
+    public boolean deleteImage(String url,String cafeId){
         try{
             Cafe cafe=getCafe(cafeId);
-            CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
-            cafe.getImages().removeIf(x->x.getId().equals(id));
-            cafeToret.setImages(cafe.getImages());
-            cafeToretRepository.save(cafeToret);
+            if(!cafe.getImages().isEmpty() && cafe.getImages().get(0).equals(url)){
+                CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
+                if(cafe.getImages().size()>1) cafeToret.setImage(cafe.getImages().get(1));
+                cafeToretRepository.save(cafeToret);
+            }
+            cafe.getImages().removeIf(x->x.equals(url));
             cafeRepository.save(cafe);
-            imageService.deleteImage(id);
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -122,12 +118,9 @@ public class CafeService {
         if(optUser.isEmpty()) return;
         User user=optUser.get();
         if(passwordEncoder.matches(user.getPassword(),passWord)){
-            java.util.Optional<Cafe> optCafe=cafeRepository.findById(user.getCafeAdded().getId());
+            Optional<Cafe> optCafe=cafeRepository.findById(user.getCafeAdded().getId());
             if(optCafe.isPresent()){
                 Cafe cafe=optCafe.get();
-                for(List<Review> r:cafe.getReviews()){
-                    for(Review r1:r) reviewService.deleteReview(r1.getId());
-                }
                 cafeRepository.deleteById(cafe.getId());
                 cafeToretRepository.deleteById(cafe.getId());
             }
@@ -142,5 +135,15 @@ public class CafeService {
 
     public long getTotalPages(){
         return (cafeRepository.count()+29)/30;
+    }
+
+    @Transactional
+    public void changeName(String id,String name){
+        Cafe cafe=getCafe(id);
+        CafeToret cafeToret=cafeToretRepository.findById(cafe.getId()).orElse(null);
+        cafeToret.setName(name);
+        cafe.setName(name);
+        cafeRepository.save(cafe);
+        cafeToretRepository.save(cafeToret);
     }
 }

@@ -3,44 +3,39 @@ package com.example.review.Services;
 
 import com.example.review.Entity.Cafe;
 import com.example.review.Entity.CafeToret;
-import com.example.review.Entity.Review;
 import com.example.review.Entity.User;
 import com.example.review.Repositories.CafeRepository;
 import com.example.review.Repositories.CafeToRetRepository;
-import com.example.review.Repositories.ReviewRepository;
 import com.example.review.Repositories.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 
 
 @Service
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+
+    private static final Log log = LogFactory.getLog(UserService.class);
     private final UserRepository userRepository;
     private final CafeRepository cafeRepository;
     private final CafeService cafeService;
-    private final ReviewService reviewService;
     private final CafeToRetRepository cafeToRetRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final ImageService imageService;
 
     @Autowired
-    public UserService(ImageService imageService,CafeToRetRepository cafeToRetRepository,UserRepository userRepository, CafeRepository cafeRepository,ReviewRepository reviewRepository,CafeService cafeService,ReviewService reviewService){
+    public UserService(ImageService imageService,CafeToRetRepository cafeToRetRepository,UserRepository userRepository, CafeRepository cafeRepository,CafeService cafeService){
         this.userRepository=userRepository;
         this.cafeRepository=cafeRepository;
         passwordEncoder=new BCryptPasswordEncoder();
         this.cafeService=cafeService;
-        this.reviewService=reviewService;
         this.cafeToRetRepository=cafeToRetRepository;
         this.imageService=imageService;
     }
@@ -73,32 +68,30 @@ public class UserService {
         return false;
     }
 
-    @Transactional
-    public boolean changeDp(String email,MultipartFile file){
-        User user=getUser(email);
-        if(user.getImage()!=null) imageService.deleteImage(user.getImage().getId());
-        try{
-            String id=imageService.addFile(file);
-            user.setImage(imageService.loadFile(id));
-            userRepository.save(user);
-            return true;
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            return false;
-        }
-    }
+//    @Transactional
+//    public void changeDp(String email, MultipartFile file){
+//        User user=getUser(email);
+//        if(user.getImage()!=null) imageService.deleteImage(user.getImage().getId());
+//        try{
+//            String id=imageService.addFile(file);
+//            user.setImage(imageService.loadFile(id));
+//            userRepository.save(user);
+//        } catch (IOException e) {
+//            log.error(e.getMessage());
+//        }
+//    }
 
-    @Transactional
-    public boolean deleteUser(String email,String passWord){
-        User user=getUser(email);
-        if(user!=null&&passwordEncoder.matches(user.getPassword(),passWord)){
-            for(Review review:user.getReviews()) reviewService.deleteReview(review.getId());
-            if(user.getCafeAdded()!=null) cafeService.deleteCafe(email,passWord);
-            userRepository.deleteById(email);
-            return true;
-        }
-        return false;
-    }
+//    @Transactional
+//    public boolean deleteUser(String email,String passWord){
+//        User user=getUser(email);
+//        if(user!=null&&passwordEncoder.matches(user.getPassword(),passWord)){
+//            for(Review review:user.getReviews()) reviewService.deleteReview(review.getId());
+//            if(user.getCafeAdded()!=null) cafeService.deleteCafe(email,passWord);
+//            userRepository.deleteById(email);
+//            return true;
+//        }
+//        return false;
+//    }
 
 
     public User getUser(String email){
@@ -107,19 +100,21 @@ public class UserService {
     }
 
     @Transactional
-    public boolean addCafe(String email,String name){
+    public boolean addCafe(String email,String name,String address){
         User user=getUser(email);
-        if(user!=null&&user.getRole().equals("Owner")&&user.getCafeAdded()==null){
+        if(user!=null&&user.getRole().equals("owner")&&user.getCafeAdded()==null){
             Cafe cafe=new Cafe();
             cafe.setName(name);
-            cafeRepository.save(cafe);
-            user.setCafeAdded(cafe);
+            cafe.setAddress(address);
+            cafe.setImages(new ArrayList<>());
+            cafe.setDishes(new ArrayList<>());
+            Cafe c=cafeRepository.save(cafe);
+            user.setCafeAdded(c);
             userRepository.save(user);
-            user=userRepository.findById(email).get();
             CafeToret cafeToret=new CafeToret();
-            cafeToret.setName(user.getCafeAdded().getId());
-            cafeToret.setImages(cafe.getImages());
-            cafeToret.setRating(cafeToret.getRating());
+            cafeToret.setName(name);
+            cafeToret.setId(cafe.getId());
+            cafeToret.setAddress(address);
             cafeToRetRepository.save(cafeToret);
             return true;
         }
