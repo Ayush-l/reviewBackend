@@ -103,6 +103,7 @@ public class CafeService {
             if(!cafe.getImages().isEmpty() && cafe.getImages().get(0).equals(url)){
                 CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
                 if(cafe.getImages().size()>1) cafeToret.setImage(cafe.getImages().get(1));
+                else cafeToret.setImage("none");
                 cafeToretRepository.save(cafeToret);
             }
             cafe.getImages().removeIf(x->x.equals(url));
