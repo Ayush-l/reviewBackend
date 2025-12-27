@@ -85,7 +85,7 @@ public class CafeService {
             cafe.getImages().add(url);
             if(cafe.getImages().size()==1){
                 CafeToret cafeToret=cafeToretRepository.findById(cafeId).get();
-                cafeToret.setImage(cafe.getImages().get(0));
+                cafeToret.setImage(url);
                 cafeToretRepository.save(cafeToret);
             }
             cafeRepository.save(cafe);
